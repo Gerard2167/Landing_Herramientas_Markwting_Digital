@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Descarga tu Guía de Marketing Digital</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,8 +77,16 @@
                     // Redirigir a la página de agradecimiento si todo fue bien
                     window.location.href = '/thankyou.html';
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Ocurrió un error al enviar el correo.');
+                    // Si la respuesta no es OK, intenta obtener un error JSON, si no, usa el status text
+                    let errorMessage = 'Ocurrió un error en el servidor.';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        // Esto pasa si la respuesta de error no es un JSON válido (ej. respuesta vacía)
+                        errorMessage = `${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
             } catch (error) {
                 statusMessage.innerText = 'Error: ' + error.message;
